@@ -1,0 +1,24 @@
+{
+  "name": "فرحات زايد — الأغاني",
+  "short_name": "فرحات زايد",
+  "description": "التطبيق الرسمي لأغاني فرحات زايد — اسمع، شوف الكليبات، وحمّل.",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0F0E0D",
+  "theme_color": "#0F0E0D",
+  "categories": ["music", "entertainment"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "كل الأغاني", "url": "./#/songs" },
+    { "name": "الكليبات", "url": "./#/clips" },
+    { "name": "التحميلات", "url": "./#/downloads" }
+  ]
+}
