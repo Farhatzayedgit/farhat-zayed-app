@@ -449,8 +449,12 @@ function vFollow() {
   <div style="padding:14px 20px 0"><button class="btn outline block" data-act="shareapp">${I.share}ابعت الأبليكيشن لصحابك</button></div>
   ${installCard(true)}
   ${worksSection()}
-  <p class="foot">التطبيق الرسمي · إنتاج Movera</p>`;
+  <p class="foot">التطبيق الرسمي · إنتاج Movera</p>
+  ${isAdmin() ? `<p style="text-align:center;margin:10px 0 0"><a class="btn outline" style="display:inline-flex" href="admin.html">${I.music}لوحة التحكم — ضيف أغنية</a></p>` : ''}`;
 }
+
+// زرار لوحة التحكم بيظهر على جهاز صاحب الأبليكيشن بس (اللي ربط حسابه)
+function isAdmin() { try { return !!localStorage.getItem('fz.admin.token'); } catch (e) { return false; } }
 
 /* ================= أعمالنا التانية ================= */
 function worksSection() {

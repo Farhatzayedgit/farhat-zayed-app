@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>لوحة التحكم — فرحات زايد</title>
+<meta name="theme-color" content="#0F0E0D">
+<link rel="icon" type="image/png" href="icons/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@500;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+<style>
+  body{padding:calc(env(safe-area-inset-top,0px) + 8px) 0 40px}
+  .wrap{max-width:520px;margin:0 auto;padding:0 20px}
+  .card-box{background:var(--s1);border-radius:20px;padding:18px;margin-top:16px}
+  .card-box h2{font-family:var(--display);font-size:18px;margin:0 0 4px}
+  .hint{font-size:13px;color:var(--muted);line-height:1.8;margin:0 0 14px}
+  .field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+  .field label{font-size:14px;font-weight:600}
+  .field small{font-size:12px;color:var(--dim)}
+  .field input[type=text],.field input[type=url],.field input[type=password]{height:48px;border-radius:14px;border:1.5px solid var(--s3);background:var(--bg);color:var(--text);font:inherit;font-size:15px;padding:0 14px}
+  .field input:focus{outline:none;border-color:var(--accent)}
+  .ltr{direction:ltr;text-align:left}
+  .drop{display:flex;align-items:center;gap:12px;min-height:64px;border:1.5px dashed var(--s3);border-radius:14px;padding:10px 14px;cursor:pointer;color:var(--muted);font-size:14px}
+  .drop svg{color:var(--accent);flex-shrink:0}
+  .drop.ok{border-style:solid;border-color:var(--accent);color:var(--text)}
+  .drop input{position:absolute;opacity:0;width:1px;height:1px}
+  .thumb{width:100%;aspect-ratio:16/9;border-radius:14px;object-fit:cover;background:var(--bg);margin-top:8px}
+  .status{margin-top:12px;font-size:14px;line-height:1.8;min-height:1em}
+  .status.err{color:#FF8A7A}
+  .status.ok{color:var(--accent)}
+  .bar-prog{height:6px;border-radius:6px;background:var(--s3);overflow:hidden;margin-top:10px}
+  .bar-prog div{height:100%;width:0;background:var(--accent);transition:width .3s}
+  .row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--s2)}
+  .row:last-child{border-bottom:0}
+  .row img{width:80px;height:45px;border-radius:8px;object-fit:cover;flex-shrink:0;background:var(--bg)}
+  .row b{flex:1;min-width:0;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .row button{width:44px;height:44px;border-radius:12px;color:var(--dim);display:grid;place-items:center}
+  .row button:hover{color:#FF8A7A;background:var(--s2)}
+  .steps{margin:0;padding-right:20px;font-size:14px;line-height:2;color:#D8D0C4}
+  .steps code{direction:ltr;unicode-bidi:embed;background:var(--bg);padding:2px 6px;border-radius:6px;font-size:13px}
+  .top a{color:var(--accent);font-size:14px;font-weight:600}
+  button[disabled]{opacity:.5;pointer-events:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top" style="padding:14px 0 4px">
+    <div class="hello"><small>لوحة التحكم</small><span class="brand">إضافة أغنية</span></div>
+    <a href="./">رجوع للأبليكيشن</a>
+  </header>
+
+  <!-- تسجيل الدخول -->
+  <section class="card-box" id="loginBox" hidden>
+    <h2>اربط الأبليكيشن بحسابك على جيت هب</h2>
+    <p class="hint">مرة واحدة بس على الجهاز ده. المفتاح بيتحفظ على جهازك إنت بس، ومحدش غيرك يقدر يضيف أغاني.</p>
+    <ol class="steps">
+      <li>افتح <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener" style="color:var(--accent)">صفحة إنشاء مفتاح جديد</a> على جيت هب.</li>
+      <li>في <b>Token name</b> اكتب <code>farhat-app</code>، وفي <b>Expiration</b> اختار <b>No expiration</b> أو سنة.</li>
+      <li>في <b>Repository access</b> اختار <b>Only select repositories</b> وبعدين <code>farhat-zayed-app</code>.</li>
+      <li>في <b>Permissions</b> افتح <b>Repository permissions</b> وخلّي <b>Contents</b> = <b>Read and write</b>.</li>
+      <li>دوس <b>Generate token</b>، انسخ المفتاح، والزقه هنا.</li>
+    </ol>
+    <div class="field" style="margin-top:14px">
+      <label for="token">المفتاح</label>
+      <input id="token" type="password" class="ltr" autocomplete="off" placeholder="github_pat_…">
+    </div>
+    <button class="btn primary block" id="saveToken">اربط</button>
+    <div class="status" id="loginStatus" role="status"></div>
+  </section>
+
+  <!-- إضافة أغنية -->
+  <section id="panel" hidden>
+    <form class="card-box" id="addForm" novalidate>
+      <h2>أغنية جديدة</h2>
+      <p class="hint">الأغنية هتظهر أول واحدة في الأبليكيشن كـ«أحدث إصدار»، خلال دقيقة أو اتنين من الحفظ.</p>
+
+      <div class="field">
+        <label for="title">اسم الأغنية</label>
+        <input id="title" type="text" required placeholder="مثلاً: غيابك طال">
+      </div>
+      <div class="field">
+        <label for="feat">مشارك معاك (لو دويتو)</label>
+        <input id="feat" type="text" placeholder="مثلاً: روح — سيبها فاضية لو لوحدك">
+      </div>
+      <div class="field">
+        <label for="yt">لينك الكليب على يوتيوب</label>
+        <input id="yt" type="url" class="ltr" required placeholder="https://www.youtube.com/watch?v=…">
+        <small id="ytInfo"></small>
+      </div>
+
+      <div class="field">
+        <label>ملف الأغنية (MP3)</label>
+        <label class="drop" id="mp3Drop">
+          <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          <span id="mp3Name">دوس واختار ملف MP3</span>
+          <input id="mp3" type="file" accept="audio/mpeg,.mp3">
+        </label>
+      </div>
+
+      <div class="field">
+        <label>الصورة المصغرة</label>
+        <label class="drop" id="imgDrop">
+          <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-8 8"/></svg>
+          <span id="imgName">دوس واختار الصورة</span>
+          <input id="img" type="file" accept="image/*">
+        </label>
+        <small>هتتقص وتتصغّر لوحدها لمقاس 16:9. لو مختارتش صورة، هاخد صورة الكليب من يوتيوب.</small>
+        <img id="preview" class="thumb" alt="" hidden>
+      </div>
+
+      <button class="btn primary block" id="submit" type="submit">ضيف الأغنية</button>
+      <div class="bar-prog" id="prog" hidden><div></div></div>
+      <div class="status" id="status" role="status" aria-live="polite"></div>
+    </form>
+
+    <section class="card-box">
+      <h2>الأغاني الموجودة</h2>
+      <p class="hint" id="countHint"></p>
+      <div id="list"></div>
+    </section>
+
+    <p style="text-align:center;margin-top:18px"><button class="btn outline" id="logout">فصل الحساب من الجهاز ده</button></p>
+  </section>
+</div>
+
+<script>
+(() => {
+'use strict';
+const OWNER = 'Farhatzayedgit', REPO = 'farhat-zayed-app', BRANCH = 'main';
+const API = `https://api.github.com/repos/${OWNER}/${REPO}`;
+const $ = (s) => document.querySelector(s);
+const KEY = 'fz.admin.token';
+let token = '';
+try { token = localStorage.getItem(KEY) || ''; } catch (e) {}
+
+/* ---------- جيت هب ---------- */
+async function gh(path, opts = {}) {
+  const res = await fetch(path.startsWith('http') ? path : API + path, {
+    ...opts,
+    headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', ...(opts.body ? { 'Content-Type': 'application/json' } : {}) }
+  });
+  if (!res.ok) {
+    let msg = `${res.status}`;
+    try { const j = await res.json(); msg += ' ' + (j.message || ''); } catch (e) {}
+    const err = new Error(msg); err.status = res.status; throw err;
+  }
+  return res.status === 204 ? null : res.json();
+}
+const b64utf8 = (str) => { const bytes = new TextEncoder().encode(str); let bin = ''; for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(bin); };
+const b64file = (blob) => new Promise((ok, no) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(',')[1]); r.onerror = () => no(r.error); r.readAsDataURL(blob); });
+
+async function readSongs() {
+  const f = await gh(`/contents/songs.js?ref=${BRANCH}`);
+  const bin = atob(f.content.replace(/\n/g, ''));
+  const text = new TextDecoder().decode(Uint8Array.from(bin, c => c.charCodeAt(0)));
+  const arr = JSON.parse(text.slice(text.indexOf('['), text.lastIndexOf(']') + 1));
+  return arr;
+}
+function songsFile(arr) {
+  return '/* قايمة الأغاني — الأحدث الأول. بتتعدّل من لوحة التحكم (admin.html) */\nwindow.SONGS = [\n' +
+    arr.map(o => '  ' + JSON.stringify({ id: o.id, t: o.t, f: o.f || '', yt: o.yt, d: o.d })).join(',\n') + '\n];\n';
+}
+// كومِت واحد فيه كل الملفات مرة واحدة
+async function commit(files, message, onStep) {
+  const ref = await gh(`/git/ref/heads/${BRANCH}`);
+  const base = await gh(`/git/commits/${ref.object.sha}`);
+  const tree = [];
+  let i = 0;
+  for (const f of files) {
+    const blob = await gh('/git/blobs', { method: 'POST', body: JSON.stringify({ content: f.content, encoding: f.encoding }) });
+    tree.push({ path: f.path, mode: '100644', type: 'blob', sha: blob.sha });
+    onStep && onStep(++i / (files.length + 2));
+  }
+  const t = await gh('/git/trees', { method: 'POST', body: JSON.stringify({ base_tree: base.tree.sha, tree }) });
+  const c = await gh('/git/commits', { method: 'POST', body: JSON.stringify({ message, tree: t.sha, parents: [ref.object.sha] }) });
+  onStep && onStep((files.length + 1) / (files.length + 2));
+  await gh(`/git/refs/heads/${BRANCH}`, { method: 'PATCH', body: JSON.stringify({ sha: c.sha }) });
+  onStep && onStep(1);
+}
+
+/* ---------- أدوات ---------- */
+function ytId(url) {
+  const m = String(url).trim().match(/(?:youtu\.be\/|v=|\/shorts\/|\/embed\/|\/live\/)([\w-]{11})/);
+  return m ? m[1] : (/^[\w-]{11}$/.test(String(url).trim()) ? String(url).trim() : '');
+}
+function audioDuration(file) {
+  return new Promise((ok) => {
+    const a = new Audio(); const u = URL.createObjectURL(file);
+    a.preload = 'metadata';
+    a.onloadedmetadata = () => { URL.revokeObjectURL(u); ok(Math.round(a.duration) || 0); };
+    a.onerror = () => { URL.revokeObjectURL(u); ok(0); };
+    a.src = u;
+  });
+}
+function loadImg(src) {
+  return new Promise((ok, no) => { const im = new Image(); im.crossOrigin = 'anonymous'; im.onload = () => ok(im); im.onerror = no; im.src = src; });
+}
+// قص 16:9 من النص وتصغير لـ 640×360
+async function coverBlob(source) {
+  const im = await loadImg(source);
+  const W = 640, H = 360, r = W / H;
+  let sw = im.naturalWidth, sh = im.naturalHeight, sx = 0, sy = 0;
+  if (sw / sh > r) { const nw = sh * r; sx = (sw - nw) / 2; sw = nw; } else { const nh = sw / r; sy = (sh - nh) / 2; sh = nh; }
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const g = c.getContext('2d'); g.imageSmoothingQuality = 'high';
+  g.drawImage(im, sx, sy, sw, sh, 0, 0, W, H);
+  return new Promise((ok, no) => c.toBlob(b => b ? ok(b) : no(new Error('canvas')), 'image/jpeg', 0.82));
+}
+const fmt = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+function setStatus(msg, kind) { const s = $('#status'); s.textContent = msg; s.className = 'status' + (kind ? ' ' + kind : ''); }
+function setProg(p) { const b = $('#prog'); b.hidden = p == null; if (p != null) b.firstElementChild.style.width = Math.round(p * 100) + '%'; }
+const friendly = (e) => e.status === 401 ? 'المفتاح مش شغال أو انتهى — افصل الحساب واربطه تاني بمفتاح جديد.'
+  : e.status === 403 || e.status === 404 ? 'المفتاح مالوش صلاحية على المستودع — اتأكد إنك اخترت farhat-zayed-app وخليت Contents = Read and write.'
+  : e.status === 409 || e.status === 422 ? 'حصل تعارض مع تعديل تاني — جرّب تاني بعد ثواني.'
+  : 'حصلت مشكلة في الاتصال — اتأكد من النت وجرّب تاني.';
+
+/* ---------- الشاشات ---------- */
+let SONGS = [];
+async function enter() {
+  $('#loginBox').hidden = true; $('#panel').hidden = false;
+  try { SONGS = await readSongs(); renderList(); }
+  catch (e) { if (e.status === 401) { logout(); $('#loginStatus').textContent = friendly(e); $('#loginStatus').className = 'status err'; } else setStatus(friendly(e), 'err'); }
+}
+function renderList() {
+  $('#countHint').textContent = `${SONGS.length} أغنية — الأحدث فوق. تقدر تشيل أي أغنية من الأبليكيشن من هنا.`;
+  $('#list').innerHTML = SONGS.map(s => `
+    <div class="row"><img loading="lazy" src="covers/${s.id}.jpg" alt=""><b>${s.t.replace(/[<>&]/g, '')}${s.f ? ' — ' + s.f.replace(/[<>&]/g, '') : ''}</b>
+    <button data-del="${s.id}" aria-label="شيل ${s.t.replace(/"/g, '')}"><svg viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M10 11v6M14 11v6"/><path d="M6 7l1 13h10l1-13"/><path d="M9 7V4h6v3"/></svg></button></div>`).join('');
+}
+function logout() { try { localStorage.removeItem(KEY); } catch (e) {} token = ''; $('#panel').hidden = true; $('#loginBox').hidden = false; }
+
+$('#saveToken').addEventListener('click', async () => {
+  const t = $('#token').value.trim(); const st = $('#loginStatus');
+  if (!t) { st.textContent = 'الزق المفتاح الأول.'; st.className = 'status err'; return; }
+  token = t; st.textContent = 'بيتأكد من المفتاح…'; st.className = 'status';
+  try {
+    const repo = await gh('');
+    if (!repo.permissions || !repo.permissions.push) throw Object.assign(new Error('perm'), { status: 403 });
+    try { localStorage.setItem(KEY, t); } catch (e) {}
+    $('#token').value = ''; st.textContent = '';
+    enter();
+  } catch (e) { token = ''; st.textContent = friendly(e); st.className = 'status err'; }
+});
+$('#logout').addEventListener('click', logout);
+
+$('#yt').addEventListener('input', () => {
+  const id = ytId($('#yt').value);
+  $('#ytInfo').textContent = $('#yt').value && !id ? 'اللينك ده مش لينك فيديو يوتيوب' : '';
+  if (id && !$('#img').files.length) { $('#preview').src = `https://i.ytimg.com/vi/${id}/hqdefault.jpg`; $('#preview').hidden = false; }
+});
+$('#mp3').addEventListener('change', async () => {
+  const f = $('#mp3').files[0]; if (!f) return;
+  const d = await audioDuration(f);
+  $('#mp3Name').textContent = `${f.name} — ${(f.size / 1048576).toFixed(1)} ميجا${d ? ' — ' + fmt(d) : ''}`;
+  $('#mp3Drop').classList.add('ok');
+  if (!$('#title').value) $('#title').value = f.name.replace(/\.mp3$/i, '').trim().slice(0, 60);
+});
+$('#img').addEventListener('change', () => {
+  const f = $('#img').files[0]; if (!f) return;
+  $('#imgName').textContent = f.name; $('#imgDrop').classList.add('ok');
+  $('#preview').src = URL.createObjectURL(f); $('#preview').hidden = false;
+});
+
+$('#addForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const title = $('#title').value.trim(), feat = $('#feat').value.trim(), yt = ytId($('#yt').value);
+  const mp3 = $('#mp3').files[0], img = $('#img').files[0];
+  if (!title) return setStatus('اكتب اسم الأغنية.', 'err');
+  if (!yt) return setStatus('حط لينك الكليب على يوتيوب.', 'err');
+  if (!mp3) return setStatus('اختار ملف الـ MP3.', 'err');
+  if (mp3.size > 45 * 1048576) return setStatus('الملف كبير أوي (أكتر من 45 ميجا) — صدّره بجودة أقل وجرّب تاني.', 'err');
+  const btn = $('#submit'); btn.disabled = true;
+  try {
+    setStatus('بيجهّز الصورة…'); setProg(0.02);
+    let cover;
+    try { cover = await coverBlob(img ? URL.createObjectURL(img) : `https://i.ytimg.com/vi/${yt}/maxresdefault.jpg`); }
+    catch (err) { if (img) throw err; cover = await coverBlob(`https://i.ytimg.com/vi/${yt}/hqdefault.jpg`); }
+    const d = await audioDuration(mp3);
+    setStatus('بيقرا قايمة الأغاني…');
+    SONGS = await readSongs();
+    const n = SONGS.reduce((m, s) => Math.max(m, parseInt(s.id.slice(1), 10) || 0), 0) + 1;
+    const id = 's' + String(n).padStart(2, '0');
+    const next = [{ id, t: title, f: feat, yt, d }, ...SONGS];
+    setStatus('بيرفع الأغنية… (ماتقفلش الصفحة)');
+    await commit([
+      { path: `audio/${id}.mp3`, content: await b64file(mp3), encoding: 'base64' },
+      { path: `covers/${id}.jpg`, content: await b64file(cover), encoding: 'base64' },
+      { path: 'songs.js', content: b64utf8(songsFile(next)), encoding: 'base64' }
+    ], `إضافة أغنية: ${title}`, (p) => setProg(0.05 + p * 0.95));
+    SONGS = next; renderList();
+    setStatus(`✓ «${title}» اتضافت! هتظهر في الأبليكيشن خلال دقيقة أو اتنين.`, 'ok');
+    $('#addForm').reset(); $('#preview').hidden = true; $('#ytInfo').textContent = '';
+    $('#mp3Name').textContent = 'دوس واختار ملف MP3'; $('#imgName').textContent = 'دوس واختار الصورة';
+    $('#mp3Drop').classList.remove('ok'); $('#imgDrop').classList.remove('ok');
+    setTimeout(() => setProg(null), 1500);
+  } catch (err) {
+    setProg(null); setStatus(err.status ? friendly(err) : 'مش قادر يقرا الصورة — جرّب صورة تانية (JPG أو PNG).', 'err');
+  }
+  btn.disabled = false;
+});
+
+$('#list').addEventListener('click', async (e) => {
+  const b = e.target.closest('[data-del]'); if (!b) return;
+  const s = SONGS.find(x => x.id === b.dataset.del); if (!s) return;
+  if (!confirm(`متأكد إنك عايز تشيل «${s.t}» من الأبليكيشن؟`)) return;
+  b.disabled = true;
+  try {
+    const cur = await readSongs();
+    const next = cur.filter(x => x.id !== s.id);
+    await commit([{ path: 'songs.js', content: b64utf8(songsFile(next)), encoding: 'base64' }], `شيل أغنية: ${s.t}`);
+    SONGS = next; renderList();
+    setStatus(`«${s.t}» اتشالت من الأبليكيشن.`, 'ok');
+  } catch (err) { b.disabled = false; setStatus(friendly(err), 'err'); }
+});
+
+if (token) enter(); else $('#loginBox').hidden = false;
+})();
+</script>
+</body>
+</html>

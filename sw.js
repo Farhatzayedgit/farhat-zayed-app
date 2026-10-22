@@ -1,5 +1,5 @@
 /* Service worker — أبليكيشن فرحات زايد */
-const VERSION = 'fz-shell-v3';
+const VERSION = 'fz-shell-v4';
 const AUDIO = 'fz-audio';
 const IMG = 'fz-img-v1';
 const FONTS = 'fz-fonts-v1';
@@ -85,8 +85,8 @@ self.addEventListener('fetch', (e) => {
   // ملفات الأبليكيشن نفسه
   if (url.origin === location.origin) {
     if (req.mode === 'navigate') {
-      e.respondWith(fetch(req).then(res => { const copy = res.clone(); caches.open(VERSION).then(c => c.put('index.html', copy)); return res; })
-        .catch(() => caches.match('index.html')));
+      e.respondWith(fetch(req).then(res => { if (res.ok) { const copy = res.clone(); caches.open(VERSION).then(c => c.put(req.url.split('#')[0], copy)); } return res; })
+        .catch(async () => (await caches.match(req, { ignoreSearch: true })) || caches.match('index.html')));
       return;
     }
     // ملفات الأبليكيشن: من النت الأول عشان أي تحديث يظهر على طول، ومن الكاش لو مفيش نت
