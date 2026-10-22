@@ -590,6 +590,15 @@ $('#miniToggle').addEventListener('click', () => toggle());
   if (last && BY_ID[last.id]) { st.cur = last.id; setMeta(BY_ID[last.id]); }
   refreshOffline().then(render);
   render();
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+  if ('serviceWorker' in navigator) {
+    // لما ينزل تحديث جديد للأبليكيشن، الصفحة تتحدّث لوحدها مرة واحدة
+    const hadController = !!navigator.serviceWorker.controller;
+    let reloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!hadController || reloaded || !audio.paused) return;
+      reloaded = true; location.reload();
+    });
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(r => r.update()).catch(() => {});
+  }
 })();
 })();

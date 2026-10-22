@@ -1,5 +1,5 @@
 /* Service worker — أبليكيشن فرحات زايد */
-const VERSION = 'fz-shell-v2';
+const VERSION = 'fz-shell-v3';
 const AUDIO = 'fz-audio';
 const IMG = 'fz-img-v1';
 const FONTS = 'fz-fonts-v1';
@@ -89,12 +89,8 @@ self.addEventListener('fetch', (e) => {
         .catch(() => caches.match('index.html')));
       return;
     }
-    // قايمة الأغاني: من النت الأول عشان الأغاني الجديدة تظهر على طول
-    if (/\/songs\.js$/.test(url.pathname)) {
-      e.respondWith(fetch(req).then(res => { const copy = res.clone(); caches.open(VERSION).then(c => c.put(req, copy)); return res; })
-        .catch(() => caches.match(req, { ignoreSearch: true })));
-      return;
-    }
-    e.respondWith(staleWhileRevalidate(req, VERSION));
+    // ملفات الأبليكيشن: من النت الأول عشان أي تحديث يظهر على طول، ومن الكاش لو مفيش نت
+    e.respondWith(fetch(req).then(res => { if (res.ok) { const copy = res.clone(); caches.open(VERSION).then(c => c.put(req, copy)); } return res; })
+      .catch(() => caches.match(req, { ignoreSearch: true })));
   }
 });
