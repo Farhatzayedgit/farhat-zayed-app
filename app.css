@@ -170,6 +170,18 @@ body.has-mini #view{padding-bottom:calc(var(--nav-h) + var(--mini-h) + var(--saf
 .link>svg{color:var(--dim);width:18px;height:18px}
 .foot{text-align:center;font-size:12px;color:var(--dim);padding:22px 20px 0}
 
+/* ---------- works ---------- */
+.works{display:flex;flex-direction:column;gap:10px;padding:0 20px}
+.work{display:flex;align-items:center;gap:12px;background:var(--s1);border-radius:18px;padding:12px}
+.work-mark{width:48px;height:48px;border-radius:14px;background:var(--s2);border:1.5px solid var(--s3);display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:14px;color:var(--accent);flex-shrink:0}
+.work-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.work-tx b{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.work-tx span{font-size:12px;color:var(--muted)}
+.work-links{display:flex;gap:6px;flex-shrink:0}
+.work-btn{min-width:48px;height:48px;border-radius:12px;background:var(--s2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:10px;font-weight:600;color:#C8BFB3;padding:0 6px}
+.work-btn svg{width:18px;height:18px;color:var(--accent)}
+.work-btn:active{background:var(--s3)}
+
 /* ---------- install card ---------- */
 .install{margin:26px 20px 0;background:var(--s1);border-radius:20px;padding:18px;display:flex;gap:14px;align-items:center}
 .install img{width:52px;height:52px;border-radius:14px;flex-shrink:0}

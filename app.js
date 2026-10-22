@@ -11,6 +11,19 @@ const LINKS = {
 };
 const AUDIO_CACHE = 'fz-audio';
 
+/* أعمالنا التانية — لإضافة شغل جديد: ضيف عنصر هنا */
+const WORKS = [
+  { name: 'Movera Podcast', note: 'بودكاست', mark: 'MP', links: [
+    { p: 'yt', url: 'https://www.youtube.com/@MoveraPodcast' },
+    { p: 'fb', url: 'https://www.facebook.com/profile.php?id=61595351128257' } ] },
+  { name: 'روح', note: 'قناة أغاني روح', mark: 'روح', links: [
+    { p: 'yt', url: 'https://www.youtube.com/@rou7musicofficial' } ] },
+  { name: 'محكمة الشلّة', note: 'برنامج كوميدي', mark: 'مح', links: [
+    { p: 'yt', url: 'https://www.youtube.com/@MahkametElShella' } ] },
+  { name: 'Movera Comics', note: 'شورتس كوميدي', mark: 'MC', links: [
+    { p: 'fb', url: 'https://www.facebook.com/profile.php?id=61594201239094' } ] }
+];
+
 /* ================= بيانات ================= */
 const SONGS = window.SONGS || [];
 const BY_ID = {};
@@ -52,6 +65,7 @@ const I = {
   people: '<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.5 3-5.5 6.5-5.5s6.5 2 6.5 5.5"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14.5c2.6 0 4.5 1.6 4.5 4.5"/></svg>',
   insta: '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor"/></svg>',
   waves: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5"/><path d="M7 9.5c3.5-1 7-.6 10 1"/><path d="M7.8 12.7c2.8-.7 5.6-.4 8 .9"/><path d="M8.6 15.6c2.1-.5 4.1-.3 5.9.6"/></svg>',
+  fbook: '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="M15.5 7.5h-2a2 2 0 0 0-2 2V21"/><path d="M9 12.5h6"/></svg>',
   install: '<svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M12 7v7"/><path d="m9 11 3 3 3-3"/></svg>'
 };
 
@@ -313,6 +327,7 @@ function vHome() {
     <div class="list">${SONGS.slice(0, 6).map(s => item(s, 'all')).join('')}</div>
     <a class="more-link" href="#/songs">عرض كل الأغاني</a>
   </section>
+  ${worksSection()}
   ${installCard()}`;
 }
 
@@ -433,7 +448,24 @@ function vFollow() {
   </nav>
   <div style="padding:14px 20px 0"><button class="btn outline block" data-act="shareapp">${I.share}ابعت الأبليكيشن لصحابك</button></div>
   ${installCard(true)}
+  ${worksSection()}
   <p class="foot">التطبيق الرسمي · إنتاج Movera</p>`;
+}
+
+/* ================= أعمالنا التانية ================= */
+function worksSection() {
+  const P = { yt: { ic: I.yt, t: 'يوتيوب' }, fb: { ic: I.fbook, t: 'فيسبوك' } };
+  return `
+  <section class="sec" aria-labelledby="worksH">
+    <div class="sec-head"><h2 id="worksH">أعمالنا التانية</h2></div>
+    <div class="works">${WORKS.map(w => `
+      <div class="work">
+        <span class="work-mark" aria-hidden="true">${esc(w.mark)}</span>
+        <span class="work-tx"><b>${esc(w.name)}</b><span>${esc(w.note)}</span></span>
+        <span class="work-links">${w.links.map(l => `<a class="work-btn" href="${l.url}" target="_blank" rel="noopener" aria-label="${esc(w.name)} على ${P[l.p].t}">${P[l.p].ic}<span>${P[l.p].t}</span></a>`).join('')}</span>
+      </div>`).join('')}
+    </div>
+  </section>`;
 }
 
 /* ================= تثبيت الأبليكيشن ================= */

@@ -1,5 +1,5 @@
 /* Service worker — أبليكيشن فرحات زايد */
-const VERSION = 'fz-shell-v1';
+const VERSION = 'fz-shell-v2';
 const AUDIO = 'fz-audio';
 const IMG = 'fz-img-v1';
 const FONTS = 'fz-fonts-v1';
